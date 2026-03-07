@@ -48,6 +48,51 @@ const experiments = [
     description: 'Study image formation by a convex lens. Move the object and observe how the image position, size, and nature change according to the lens formula.',
     difficulty: 'Advanced',
   },
+  {
+    slug: 'hookes-law',
+    title: "Hooke's Law",
+    icon: '🔩',
+    category: 'Physics',
+    color: '#ef4444',
+    description: 'Study the relationship between force and displacement in a spring. Discover how the spring constant affects restoring force and elastic potential energy.',
+    difficulty: 'Beginner',
+  },
+  {
+    slug: 'newton-cooling',
+    title: "Newton's Cooling Law",
+    icon: '🌡️',
+    category: 'Physics',
+    color: '#f97316',
+    description: 'Observe how a hot object cools over time following an exponential decay curve. Explore the effect of cooling constant and ambient temperature.',
+    difficulty: 'Intermediate',
+  },
+  {
+    slug: 'rc-circuit',
+    title: 'RC Circuit',
+    icon: '🔌',
+    category: 'Physics',
+    color: '#a855f7',
+    description: 'Simulate charging and discharging a capacitor through a resistor. Explore the time constant τ = RC and exponential voltage/current curves.',
+    difficulty: 'Advanced',
+  },
+  {
+    slug: 'snells-law',
+    title: "Snell's Law",
+    icon: '🌈',
+    category: 'Physics',
+    color: '#14b8a6',
+    description: 'Visualize light refraction at the boundary between two media. Explore total internal reflection and calculate the critical angle.',
+    difficulty: 'Intermediate',
+  },
+  {
+    slug: 'boyles-law',
+    title: "Boyle's Law",
+    icon: '💨',
+    category: 'Chemistry',
+    color: '#6366f1',
+    description: 'Investigate the inverse relationship between pressure and volume of a gas at constant temperature using PV = constant.',
+    difficulty: 'Beginner',
+  },
 ];
 
 export default function ExperimentsPage() {
@@ -64,7 +109,7 @@ export default function ExperimentsPage() {
               border: '1px solid rgba(139, 92, 246, 0.2)', fontSize: '14px',
               color: 'var(--color-accent-purple)', fontWeight: 500, marginBottom: '20px',
             }}>
-              🧪 5 Interactive Experiments
+              🧪 10 Interactive Experiments
             </div>
             <h1 style={{
               fontFamily: "'Outfit', sans-serif",
@@ -81,8 +126,8 @@ export default function ExperimentsPage() {
               margin: '0 auto',
               lineHeight: 1.6,
             }}>
-              Each experiment features interactive controls, real-time visualizations,
-              and the ability to save your results.
+              Each experiment features interactive simulations, real-time graphs,
+              formula calculators, and the ability to save your results.
             </p>
           </div>
 

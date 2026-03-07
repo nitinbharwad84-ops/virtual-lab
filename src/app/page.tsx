@@ -8,6 +8,11 @@ const experiments = [
   { slug: 'acid-base-titration', title: 'Acid-Base Titration', icon: '🧪', category: 'Chemistry', color: '#10b981', description: 'Perform virtual titration and observe pH changes' },
   { slug: 'pendulum', title: 'Simple Pendulum', icon: '🕐', category: 'Physics', color: '#06b6d4', description: 'Investigate factors affecting oscillation period' },
   { slug: 'lens-optics', title: 'Convex Lens Optics', icon: '🔬', category: 'Physics', color: '#ec4899', description: 'Study image formation by convex lenses' },
+  { slug: 'hookes-law', title: "Hooke's Law", icon: '🔩', category: 'Physics', color: '#ef4444', description: 'Study spring force and elastic potential energy' },
+  { slug: 'newton-cooling', title: "Newton's Cooling", icon: '🌡️', category: 'Physics', color: '#f97316', description: 'Observe exponential cooling over time' },
+  { slug: 'rc-circuit', title: 'RC Circuit', icon: '🔌', category: 'Physics', color: '#a855f7', description: 'Simulate capacitor charging and discharging' },
+  { slug: 'snells-law', title: "Snell's Law", icon: '🌈', category: 'Physics', color: '#14b8a6', description: 'Visualize light refraction between media' },
+  { slug: 'boyles-law', title: "Boyle's Law", icon: '💨', category: 'Chemistry', color: '#6366f1', description: 'Explore gas pressure-volume relationship' },
 ];
 
 const features = [
@@ -114,7 +119,7 @@ export default function HomePage() {
               flexWrap: 'wrap',
             }}>
               {[
-                { value: '5+', label: 'Experiments' },
+                { value: '10+', label: 'Experiments' },
                 { value: '100%', label: 'Interactive' },
                 { value: 'Free', label: 'To Use' },
               ].map((stat) => (

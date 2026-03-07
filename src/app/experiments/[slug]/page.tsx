@@ -5,6 +5,11 @@ import ProjectileMotion from '@/components/experiments/ProjectileMotion';
 import AcidBaseTitration from '@/components/experiments/AcidBaseTitration';
 import Pendulum from '@/components/experiments/Pendulum';
 import LensOptics from '@/components/experiments/LensOptics';
+import HookesLaw from '@/components/experiments/HookesLaw';
+import NewtonCooling from '@/components/experiments/NewtonCooling';
+import RCCircuit from '@/components/experiments/RCCircuit';
+import SnellsLaw from '@/components/experiments/SnellsLaw';
+import BoylesLaw from '@/components/experiments/BoylesLaw';
 
 const experimentComponents: Record<string, React.ComponentType> = {
   'ohms-law': OhmsLaw,
@@ -12,6 +17,11 @@ const experimentComponents: Record<string, React.ComponentType> = {
   'acid-base-titration': AcidBaseTitration,
   'pendulum': Pendulum,
   'lens-optics': LensOptics,
+  'hookes-law': HookesLaw,
+  'newton-cooling': NewtonCooling,
+  'rc-circuit': RCCircuit,
+  'snells-law': SnellsLaw,
+  'boyles-law': BoylesLaw,
 };
 
 const experimentInfo: Record<string, { title: string; icon: string; category: string; description: string }> = {
@@ -44,6 +54,36 @@ const experimentInfo: Record<string, { title: string; icon: string; category: st
     icon: '🔬',
     category: 'Physics',
     description: 'Explore image formation by a convex lens. Move the object and observe real/virtual image properties using the lens equation 1/f = 1/v − 1/u.',
+  },
+  'hookes-law': {
+    title: "Hooke's Law",
+    icon: '🔩',
+    category: 'Physics',
+    description: 'Study the relationship between force and displacement in a spring. Discover how spring constant affects restoring force and elastic potential energy.',
+  },
+  'newton-cooling': {
+    title: "Newton's Cooling Law",
+    icon: '🌡️',
+    category: 'Physics',
+    description: 'Observe how a hot object cools over time following an exponential decay curve. Explore the effect of cooling constant and ambient temperature.',
+  },
+  'rc-circuit': {
+    title: 'RC Circuit',
+    icon: '🔌',
+    category: 'Physics',
+    description: 'Simulate charging and discharging of a capacitor through a resistor. Explore the time constant τ = RC and exponential voltage/current curves.',
+  },
+  'snells-law': {
+    title: "Snell's Law (Refraction)",
+    icon: '🌈',
+    category: 'Physics',
+    description: 'Visualize light refraction at the boundary between two media. Explore total internal reflection and the critical angle.',
+  },
+  'boyles-law': {
+    title: "Boyle's Law",
+    icon: '💨',
+    category: 'Chemistry',
+    description: 'Investigate the inverse relationship between pressure and volume of a gas at constant temperature: PV = constant.',
   },
 };
 
