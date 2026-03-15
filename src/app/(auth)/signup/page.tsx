@@ -104,7 +104,7 @@ export default function SignupPage() {
         <p style={{ color: 'var(--color-text-secondary)', fontSize: '15px', marginTop: '8px' }}>
           {step === 'details' 
             ? 'Start your scientific journey today' 
-            : `We've sent a 6-digit code to ${email}`}
+            : `We've sent an 8-digit code to ${email}`}
         </p>
       </div>
 
@@ -191,11 +191,11 @@ export default function SignupPage() {
             <input
               type="text"
               className="input-field"
-              placeholder="123456"
+              placeholder="12345678"
               value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 8))}
               required
-              style={{ textAlign: 'center', fontSize: '24px', letterSpacing: '8px', fontWeight: 700 }}
+              style={{ textAlign: 'center', fontSize: '24px', letterSpacing: '4px', fontWeight: 700 }}
             />
           </div>
 
