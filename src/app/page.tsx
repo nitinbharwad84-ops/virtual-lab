@@ -3,20 +3,11 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 const experiments = [
-  { slug: 'ohms-law', title: "Ohm's Law", icon: '⚡', category: 'Physics', color: '#f59e0b', description: 'Explore voltage, current, and resistance relationships' },
-  { slug: 'projectile-motion', title: 'Projectile Motion', icon: '🎯', category: 'Physics', color: '#8b5cf6', description: 'Study parabolic trajectories and gravity effects' },
-  { slug: 'acid-base-titration', title: 'Acid-Base Titration', icon: '🧪', category: 'Chemistry', color: '#10b981', description: 'Perform virtual titration and observe pH changes' },
-  { slug: 'pendulum', title: 'Simple Pendulum', icon: '🕐', category: 'Physics', color: '#06b6d4', description: 'Investigate factors affecting oscillation period' },
-  { slug: 'lens-optics', title: 'Convex Lens Optics', icon: '🔬', category: 'Physics', color: '#ec4899', description: 'Study image formation by convex lenses' },
-  { slug: 'hookes-law', title: "Hooke's Law", icon: '🔩', category: 'Physics', color: '#ef4444', description: 'Study spring force and elastic potential energy' },
-  { slug: 'newton-cooling', title: "Newton's Cooling", icon: '🌡️', category: 'Physics', color: '#f97316', description: 'Observe exponential cooling over time' },
   { slug: 'rc-circuit', title: 'RC Circuit', icon: '🔌', category: 'Physics', color: '#a855f7', description: 'Simulate capacitor charging and discharging' },
-  { slug: 'snells-law', title: "Snell's Law", icon: '🌈', category: 'Physics', color: '#14b8a6', description: 'Visualize light refraction between media' },
-  { slug: 'boyles-law', title: "Boyle's Law", icon: '💨', category: 'Chemistry', color: '#6366f1', description: 'Explore gas pressure-volume relationship' },
 ];
 
 const features = [
-  { icon: '🧪', title: 'Interactive Experiments', desc: 'Run real-time simulations with adjustable parameters and instant visual feedback.' },
+  { icon: '🧪', title: 'Interactive Experiment', desc: 'Run real-time RC circuit simulation with adjustable parameters and instant visual feedback.' },
   { icon: '📊', title: 'Save & Track Results', desc: 'Save experiment results to your personal dashboard and track your learning progress.' },
   { icon: '🎨', title: 'Beautiful Visualizations', desc: 'See physics and chemistry come alive with smooth animations and detailed graphs.' },
   { icon: '🔒', title: 'Secure & Personal', desc: 'Your own account with saved experiments, accessible anywhere, anytime.' },
@@ -119,7 +110,7 @@ export default function HomePage() {
               flexWrap: 'wrap',
             }}>
               {[
-                { value: '10+', label: 'Experiments' },
+                { value: '1', label: 'Experiment' },
                 { value: '100%', label: 'Interactive' },
                 { value: 'Free', label: 'To Use' },
               ].map((stat) => (
@@ -182,7 +173,7 @@ export default function HomePage() {
               Featured <span className="gradient-text">Experiments</span>
             </h2>
             <p style={{ color: 'var(--color-text-secondary)', fontSize: '17px', maxWidth: '500px', margin: '0 auto' }}>
-              Dive into interactive simulations across physics and chemistry
+              Dive into interactive RC circuit simulation
             </p>
           </div>
 

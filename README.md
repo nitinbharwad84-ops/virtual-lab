@@ -11,7 +11,7 @@ A premium, full-stack virtual laboratory web application built with **Next.js 16
 
 ## ✨ Features
 
-- **10 Interactive Experiments** across Physics & Chemistry
+- **1 Interactive Experiment** — RC Circuit simulation
 - **Real-time Canvas Simulations** — animated visualizations rendered via HTML5 Canvas API
 - **Dynamic Graphs** — interactive, auto-updating graphs with inline sliders
 - **Formula Calculators** — step-by-step problem-solving with formulas
@@ -26,16 +26,7 @@ A premium, full-stack virtual laboratory web application built with **Next.js 16
 
 | #  | Experiment               | Subject   | Key Formula / Concept               |
 |----|--------------------------|-----------|--------------------------------------|
-| 1  | ⚡ Ohm's Law             | Physics   | V = I × R                           |
-| 2  | 🎯 Projectile Motion     | Physics   | R = v²sin(2θ)/g                     |
-| 3  | 🧪 Acid-Base Titration   | Chemistry | pH curve & equivalence point         |
-| 4  | 🕐 Simple Pendulum       | Physics   | T = 2π√(L/g)                        |
-| 5  | 🔬 Convex Lens Optics    | Physics   | 1/f = 1/v − 1/u                     |
-| 6  | 🔩 Hooke's Law           | Physics   | F = kx                              |
-| 7  | 🌡️ Newton's Cooling Law  | Physics   | T(t) = Tₐ + (T₀−Tₐ)·e^(−kt)       |
-| 8  | 🔌 RC Circuit            | Physics   | τ = RC, V = V₀(1−e^(−t/τ))         |
-| 9  | 🌈 Snell's Law           | Physics   | n₁ sin θ₁ = n₂ sin θ₂              |
-| 10 | 💨 Boyle's Law           | Chemistry | PV = constant (at constant T)       |
+| 1  | 🔌 RC Circuit            | Physics   | τ = RC, V = V₀(1−e^(−t/τ))         |
 
 Each experiment has **3 tabs**:
 1. **⚡ Simulation** — interactive canvas-based visualization with adjustable controls
@@ -75,17 +66,8 @@ virtual-lab/
 │   │   ├── layout.tsx           # Root layout
 │   │   └── page.tsx             # Home page
 │   ├── components/
-│   │   ├── experiments/         # 10 experiment components
-│   │   │   ├── OhmsLaw.tsx
-│   │   │   ├── ProjectileMotion.tsx
-│   │   │   ├── AcidBaseTitration.tsx
-│   │   │   ├── Pendulum.tsx
-│   │   │   ├── LensOptics.tsx
-│   │   │   ├── HookesLaw.tsx
-│   │   │   ├── NewtonCooling.tsx
-│   │   │   ├── RCCircuit.tsx
-│   │   │   ├── SnellsLaw.tsx
-│   │   │   └── BoylesLaw.tsx
+│   │   ├── experiments/         # RC Circuit experiment component
+│   │   │   └── RCCircuit.tsx
 │   │   ├── Graph.tsx            # Reusable graph component
 │   │   ├── FormulaCalculator.tsx # Reusable calculator component
 │   │   ├── Navbar.tsx           # Navigation bar
@@ -141,8 +123,8 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 | Page              | Route                        | Description                           |
 |-------------------|------------------------------|---------------------------------------|
 | Home              | `/`                          | Landing page with hero & feature cards |
-| Experiments       | `/experiments`               | Browse all 10 experiments             |
-| Experiment Detail | `/experiments/[slug]`        | Individual experiment with 3 tabs     |
+| Experiments       | `/experiments`               | Browse the RC Circuit experiment      |
+| Experiment Detail | `/experiments/[slug]`        | RC Circuit experiment with 3 tabs     |
 | Dashboard         | `/dashboard`                 | User's saved experiment results       |
 | Login             | `/login`                     | Email-based sign in                   |
 | Sign Up           | `/signup`                    | Create new account                    |

@@ -44,8 +44,23 @@ export default function Graph({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const w = canvas.width;
-    const h = canvas.height;
+    // Get device pixel ratio for crisp rendering
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    
+    // Set actual canvas size in memory (scaled up for retina displays)
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    
+    // Scale the drawing context so everything draws at the correct size
+    ctx.scale(dpr, dpr);
+    
+    // Set CSS size to maintain the desired display size
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+
+    const w = rect.width;
+    const h = rect.height;
     ctx.clearRect(0, 0, w, h);
 
     // Background
@@ -235,12 +250,30 @@ export default function Graph({
   }, [data, xLabel, yLabel, title, color, highlightX, showArea, secondaryData, secondaryColor, secondaryLabel]);
 
   useEffect(() => {
+    // Initial draw
     draw();
+    
+    // Redraw on window resize to handle DPI changes
+    const handleResize = () => {
+      setTimeout(draw, 100); // Small delay to ensure layout is complete
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [draw]);
 
   return (
     <div className="canvas-container" style={{ borderRadius: 'var(--radius-md)' }}>
-      <canvas ref={canvasRef} width={width} height={height} style={{ width: '100%', height: 'auto', display: 'block' }} />
+      <canvas 
+        ref={canvasRef} 
+        width={width} 
+        height={height} 
+        style={{ 
+          width: '100%', 
+          height: 'auto', 
+          display: 'block'
+        }} 
+      />
     </div>
   );
 }

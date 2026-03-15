@@ -4,69 +4,6 @@ import Footer from '@/components/Footer';
 
 const experiments = [
   {
-    slug: 'ohms-law',
-    title: "Ohm's Law",
-    icon: '⚡',
-    category: 'Physics',
-    color: '#f59e0b',
-    description: 'Explore the relationship between voltage, current, and resistance in an electrical circuit. Adjust voltage and resistance to observe how current changes.',
-    difficulty: 'Beginner',
-  },
-  {
-    slug: 'projectile-motion',
-    title: 'Projectile Motion',
-    icon: '🎯',
-    category: 'Physics',
-    color: '#8b5cf6',
-    description: 'Launch a projectile at different angles and velocities to study parabolic trajectories. Observe how gravity affects the range and maximum height.',
-    difficulty: 'Intermediate',
-  },
-  {
-    slug: 'acid-base-titration',
-    title: 'Acid-Base Titration',
-    icon: '🧪',
-    category: 'Chemistry',
-    color: '#10b981',
-    description: 'Perform a virtual titration by adding base to an acid solution. Watch how pH changes and identify the equivalence point on a real-time graph.',
-    difficulty: 'Intermediate',
-  },
-  {
-    slug: 'pendulum',
-    title: 'Simple Pendulum',
-    icon: '🕐',
-    category: 'Physics',
-    color: '#06b6d4',
-    description: 'Investigate the factors affecting a pendulum\'s time period. Adjust length and observe the oscillation in a realistic animation.',
-    difficulty: 'Beginner',
-  },
-  {
-    slug: 'lens-optics',
-    title: 'Convex Lens Optics',
-    icon: '🔬',
-    category: 'Physics',
-    color: '#ec4899',
-    description: 'Study image formation by a convex lens. Move the object and observe how the image position, size, and nature change according to the lens formula.',
-    difficulty: 'Advanced',
-  },
-  {
-    slug: 'hookes-law',
-    title: "Hooke's Law",
-    icon: '🔩',
-    category: 'Physics',
-    color: '#ef4444',
-    description: 'Study the relationship between force and displacement in a spring. Discover how the spring constant affects restoring force and elastic potential energy.',
-    difficulty: 'Beginner',
-  },
-  {
-    slug: 'newton-cooling',
-    title: "Newton's Cooling Law",
-    icon: '🌡️',
-    category: 'Physics',
-    color: '#f97316',
-    description: 'Observe how a hot object cools over time following an exponential decay curve. Explore the effect of cooling constant and ambient temperature.',
-    difficulty: 'Intermediate',
-  },
-  {
     slug: 'rc-circuit',
     title: 'RC Circuit',
     icon: '🔌',
@@ -74,24 +11,6 @@ const experiments = [
     color: '#a855f7',
     description: 'Simulate charging and discharging a capacitor through a resistor. Explore the time constant τ = RC and exponential voltage/current curves.',
     difficulty: 'Advanced',
-  },
-  {
-    slug: 'snells-law',
-    title: "Snell's Law",
-    icon: '🌈',
-    category: 'Physics',
-    color: '#14b8a6',
-    description: 'Visualize light refraction at the boundary between two media. Explore total internal reflection and calculate the critical angle.',
-    difficulty: 'Intermediate',
-  },
-  {
-    slug: 'boyles-law',
-    title: "Boyle's Law",
-    icon: '💨',
-    category: 'Chemistry',
-    color: '#6366f1',
-    description: 'Investigate the inverse relationship between pressure and volume of a gas at constant temperature using PV = constant.',
-    difficulty: 'Beginner',
   },
 ];
 
@@ -109,7 +28,7 @@ export default function ExperimentsPage() {
               border: '1px solid rgba(139, 92, 246, 0.2)', fontSize: '14px',
               color: 'var(--color-accent-purple)', fontWeight: 500, marginBottom: '20px',
             }}>
-              🧪 10 Interactive Experiments
+              🧪 Interactive Experiment
             </div>
             <h1 style={{
               fontFamily: "'Outfit', sans-serif",

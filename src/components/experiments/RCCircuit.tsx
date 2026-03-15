@@ -14,7 +14,9 @@ export default function RCCircuit() {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'simulation' | 'graph' | 'calculator'>('simulation');
+  const [animationFrame, setAnimationFrame] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number>();
   const supabase = createClient();
 
   const capF = capacitance * 1e-6;
@@ -63,27 +65,179 @@ export default function RCCircuit() {
     if (!ctx) return;
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.fillRect(0, 0, W, H);
 
-    const cX = W / 2, cY = H / 2;
+    const pulse = Math.sin(animationFrame * 0.08) * 0.5 + 0.5; // 0..1
+    const pulseIntensity = pulse;
+    const currentFlow = Math.abs(current) > 0.0001;
+    const isCharging = mode === 'charge';
+    const chargeFrac = Math.min(Math.max(vCap / voltage, 0), 1);
+    const dotColor = isCharging ? '#10b981' : '#f97316';
 
-    // Battery
-    ctx.strokeStyle = '#f59e0b';
+    // Circuit corners
+    const L = 80, R2 = W - 80, T = 80, B = H - 80;
+    // Component centres
+    const cX = (L + R2) / 2;                      // horizontal centre (resistor start)
+    const cY = (T + B) / 2;                        // vertical centre
+    const batX = L, batMidY = cY;                  // battery: left wire
+    const resTopY = T;                             // resistor: top wire
+    const capX = R2, capMidY = cY;                 // capacitor: right wire
+    const swY = B;                                 // switch: bottom wire
+
+    // ── helper: draw one animated dot segment ──────────────────────────
+    const drawDots = (
+      x1: number, y1: number, x2: number, y2: number, offset: number
+    ) => {
+      const dx = x2 - x1, dy = y2 - y1;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const spacing = 22;
+      const count = Math.ceil(len / spacing) + 1;
+      ctx.fillStyle = dotColor;
+      for (let i = 0; i < count; i++) {
+        const t2 = ((i * spacing + offset) % len) / len;
+        if (t2 < 0 || t2 > 1) continue;
+        ctx.beginPath();
+        ctx.arc(x1 + dx * t2, y1 + dy * t2, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+
+    const dotSpeed = 2.5;
+    const dotOffset = (animationFrame * dotSpeed) % 22;
+    const revOffset = 22 - dotOffset;
+
+    // Battery (only active during charging)
+    if (isCharging) {
+      if (currentFlow) {
+        ctx.shadowColor = '#f59e0b';
+        ctx.shadowBlur = 15 * pulseIntensity;
+      }
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(60, cY - 30); ctx.lineTo(60, cY + 30); ctx.stroke();
+      ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.moveTo(75, cY - 18); ctx.lineTo(75, cY + 18); ctx.stroke();
+      ctx.shadowBlur = 0;
+      
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = 'bold 12px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${voltage}V`, 68, cY - 38);
+      ctx.fillText('+', 83, cY - 22);
+      ctx.fillText('−', 50, cY - 22);
+    } else {
+      // Disconnected battery (grayed out)
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(60, cY - 30); ctx.lineTo(60, cY + 30); ctx.stroke();
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(75, cY - 18); ctx.lineTo(75, cY + 18); ctx.stroke();
+      
+      ctx.fillStyle = '#64748b';
+      ctx.font = 'bold 10px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText('OFF', 68, cY - 38);
+      
+      // Disconnection symbol
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(85, cY - 25);
+      ctx.lineTo(95, cY - 15);
+      ctx.stroke();
+    }
+
+    // Switch (shows connection state)
+    const switchX = 120, switchY = 40;
+    ctx.strokeStyle = isCharging ? '#10b981' : '#ef4444';
     ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(60, cY - 30); ctx.lineTo(60, cY + 30); ctx.stroke();
-    ctx.lineWidth = 5;
-    ctx.beginPath(); ctx.moveTo(75, cY - 18); ctx.lineTo(75, cY + 18); ctx.stroke();
-    ctx.fillStyle = '#f59e0b';
-    ctx.font = 'bold 12px Inter';
+    ctx.beginPath();
+    ctx.arc(switchX, switchY, 8, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    if (isCharging) {
+      ctx.fillStyle = '#10b981';
+      ctx.beginPath();
+      ctx.arc(switchX, switchY, 5, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Connected wire
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(switchX - 8, switchY);
+      ctx.lineTo(switchX + 8, switchY);
+      ctx.stroke();
+    } else {
+      // Open switch
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(switchX - 6, switchY - 2);
+      ctx.lineTo(switchX + 2, switchY - 8);
+      ctx.stroke();
+    }
+    
+    ctx.fillStyle = isCharging ? '#10b981' : '#ef4444';
+    ctx.font = 'bold 10px Inter';
     ctx.textAlign = 'center';
-    ctx.fillText(`${voltage}V`, 68, cY - 38);
-    ctx.fillText('+', 83, cY - 22);
-    ctx.fillText('−', 50, cY - 22);
+    ctx.fillText(isCharging ? 'CLOSED' : 'OPEN', switchX, switchY + 20);
 
-    // Wires
-    ctx.strokeStyle = '#64748b';
-    ctx.lineWidth = 2;
+    // Animated wires with current flow (different for charge/discharge)
+    const wireColor = currentFlow ? (isCharging ? `rgba(16, 185, 129, ${0.6 + 0.4 * pulseIntensity})` : `rgba(239, 68, 68, ${0.6 + 0.4 * pulseIntensity})`) : '#64748b';
+    ctx.strokeStyle = wireColor;
+    ctx.lineWidth = currentFlow ? 3 : 2;
+    
+    // Add flowing dots animation for current (different directions)
+    if (currentFlow) {
+      const dotOffset = (animationFrame * (isCharging ? 0.2 : -0.2)) % 40;
+      ctx.fillStyle = isCharging ? '#10b981' : '#ef4444';
+      
+      if (isCharging) {
+        // Charging: current flows from battery to capacitor
+        // Top wire dots (left to right)
+        for (let i = 0; i < 12; i++) {
+          const x = 75 + (i * 35 + Math.abs(dotOffset)) % (cX - 75);
+          ctx.beginPath();
+          ctx.arc(x, 40, 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        
+        // Right wire dots (top to bottom)
+        for (let i = 0; i < 8; i++) {
+          const y = 40 + (i * 30 + Math.abs(dotOffset)) % (cY - 40);
+          ctx.beginPath();
+          ctx.arc(W - 60, y, 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else {
+        // Discharging: current flows from capacitor through resistor
+        // Right wire dots (bottom to top)
+        for (let i = 0; i < 8; i++) {
+          const y = cY + 30 - (i * 30 + Math.abs(dotOffset)) % (cY - 40);
+          ctx.beginPath();
+          ctx.arc(W - 60, y, 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        
+        // Bottom wire dots (right to left)
+        for (let i = 0; i < 12; i++) {
+          const x = W - 60 - (i * 35 + Math.abs(dotOffset)) % (W - 135);
+          ctx.beginPath();
+          ctx.arc(x, H - 40, 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      
+      // Left wire dots (always bottom to top when current flows)
+      for (let i = 0; i < 8; i++) {
+        const y = H - 40 - (i * 30 + Math.abs(dotOffset)) % (cY - 40);
+        ctx.beginPath();
+        ctx.arc(75, y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    
+    // Draw wire segments
     ctx.beginPath();
     ctx.moveTo(75, cY - 30); ctx.lineTo(75, 40); ctx.lineTo(cX, 40);
     ctx.stroke();
@@ -94,7 +248,11 @@ export default function RCCircuit() {
     ctx.moveTo(W - 60, cY + 30); ctx.lineTo(W - 60, H - 40); ctx.lineTo(75, H - 40); ctx.lineTo(75, cY + 30);
     ctx.stroke();
 
-    // Resistor (zigzag)
+    // Resistor with heat glow (more intense during discharge)
+    if (currentFlow) {
+      ctx.shadowColor = '#06b6d4';
+      ctx.shadowBlur = (isCharging ? 8 : 15) * pulseIntensity;
+    }
     ctx.strokeStyle = '#06b6d4';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
@@ -106,61 +264,184 @@ export default function RCCircuit() {
     }
     ctx.lineTo(cX + 80, 40);
     ctx.stroke();
+    ctx.shadowBlur = 0;
+    
     ctx.fillStyle = '#06b6d4';
     ctx.font = 'bold 12px Inter';
     ctx.textAlign = 'center';
     ctx.fillText(`R = ${resistance}Ω`, cX + 40, 70);
 
-    // Capacitor
-    const capX = W - 60, capGap = 10;
+    // Capacitor with charge animation
+    const capGap = 10;
+    
+    if (chargeFrac > 0.1) {
+      ctx.shadowColor = '#8b5cf6';
+      ctx.shadowBlur = 12 * chargeFrac * pulseIntensity;
+    }
     ctx.strokeStyle = '#8b5cf6';
     ctx.lineWidth = 3;
     ctx.beginPath(); ctx.moveTo(capX - 15, cY - capGap); ctx.lineTo(capX + 15, cY - capGap); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(capX - 15, cY + capGap); ctx.lineTo(capX + 15, cY + capGap); ctx.stroke();
+    ctx.shadowBlur = 0;
+    
+    // Animated charge particles between plates (different behavior for charge/discharge)
+    if (chargeFrac > 0.05) {
+      const particleIntensity = isCharging ? chargeFrac : chargeFrac * 0.7;
+      ctx.fillStyle = `rgba(139, 92, 246, ${particleIntensity})`;
+      
+      for (let i = 0; i < Math.floor(chargeFrac * 10); i++) {
+        const particleY = cY - capGap + 2 + (i * (capGap * 2 - 4) / 10);
+        const oscillation = Math.sin(animationFrame * 0.15 + i) * (isCharging ? 2 : 1);
+        const separation = isCharging ? 8 : 6;
+        
+        // Positive charges (left plate)
+        ctx.beginPath();
+        ctx.arc(capX - separation + oscillation, particleY, isCharging ? 1.5 : 1, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Negative charges (right plate)
+        ctx.fillStyle = `rgba(239, 68, 68, ${particleIntensity})`;
+        ctx.beginPath();
+        ctx.arc(capX + separation - oscillation, particleY, isCharging ? 1.5 : 1, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = `rgba(139, 92, 246, ${particleIntensity})`;
+      }
+    }
+    
     ctx.fillStyle = '#8b5cf6';
     ctx.font = 'bold 12px Inter';
     ctx.fillText(`${capacitance}µF`, capX + 32, cY + 5);
 
-    // Charge level bar
-    const chargeFrac = vCap / voltage;
+    // Animated charge level bar with different colors for charge/discharge
     const barW = 24, barH = 50;
     ctx.fillStyle = '#1e293b';
     ctx.fillRect(capX - barW / 2, cY - barH / 2 + 45, barW, barH);
-    ctx.fillStyle = chargeFrac > 0.6 ? '#10b981' : chargeFrac > 0.3 ? '#f59e0b' : '#ef4444';
-    ctx.fillRect(capX - barW / 2, cY - barH / 2 + 45 + barH * (1 - chargeFrac), barW, barH * chargeFrac);
+    
+    // Animated fill with gradient
+    const gradient = ctx.createLinearGradient(0, cY - barH / 2 + 45, 0, cY + barH / 2 + 45);
+    let barColor;
+    if (isCharging) {
+      barColor = chargeFrac > 0.6 ? '#10b981' : chargeFrac > 0.3 ? '#f59e0b' : '#06b6d4';
+    } else {
+      barColor = chargeFrac > 0.6 ? '#ef4444' : chargeFrac > 0.3 ? '#f97316' : '#64748b';
+    }
+    gradient.addColorStop(0, barColor);
+    gradient.addColorStop(1, barColor + '80');
+    ctx.fillStyle = gradient;
+    
+    const animatedCharge = chargeFrac + Math.sin(animationFrame * 0.08) * 0.02;
+    ctx.fillRect(capX - barW / 2, cY - barH / 2 + 45 + barH * (1 - Math.max(0, animatedCharge)), barW, barH * Math.max(0, animatedCharge));
+    
     ctx.strokeStyle = '#475569';
     ctx.strokeRect(capX - barW / 2, cY - barH / 2 + 45, barW, barH);
 
-    // Current flow arrows
-    const arrowColor = Math.abs(current) > 0.0001 ? '#ec4899' : '#334155';
+    // Animated current flow arrows (different directions)
+    const arrowColor = currentFlow ? (isCharging ? '#10b981' : '#ef4444') : '#334155';
     ctx.fillStyle = arrowColor; ctx.strokeStyle = arrowColor;
     ctx.lineWidth = 1.5;
     const arrowY = 30;
-    ctx.beginPath(); ctx.moveTo(cX - 20, arrowY); ctx.lineTo(cX - 12, arrowY - 5); ctx.lineTo(cX - 12, arrowY + 5); ctx.fill();
+    const arrowSize = currentFlow ? 1 + 0.3 * pulseIntensity : 1;
+    
+    // Multiple arrows showing current direction
+    const arrows = isCharging ? 
+      [{ x: cX - 30, dir: 1 }, { x: cX + 50, dir: 1 }, { x: W - 80, dir: 1 }] : 
+      [{ x: cX - 30, dir: -1 }, { x: cX + 50, dir: -1 }, { x: W - 80, dir: -1 }];
+    
+    arrows.forEach(arrow => {
+      ctx.save();
+      ctx.translate(arrow.x, arrowY);
+      ctx.scale(arrowSize, arrowSize);
+      if (arrow.dir === -1) ctx.scale(-1, 1);
+      ctx.beginPath(); 
+      ctx.moveTo(-4, 0); 
+      ctx.lineTo(4, -5); 
+      ctx.lineTo(4, 5); 
+      ctx.fill();
+      ctx.restore();
+    });
 
-    // Values
+    // Values with mode-specific colors
+    const textPulse = 1 + Math.sin(animationFrame * 0.05) * 0.05;
     ctx.fillStyle = 'white';
-    ctx.font = 'bold 18px Outfit';
+    ctx.font = `bold ${18 * textPulse}px Outfit`;
     ctx.textAlign = 'center';
     ctx.fillText(`Vc = ${vCap.toFixed(2)} V`, cX, H - 65);
-    ctx.fillStyle = '#ec4899';
+    
+    ctx.fillStyle = isCharging ? '#10b981' : '#ef4444';
     ctx.font = '13px Inter';
     ctx.fillText(`I = ${(Math.abs(current) * 1000).toFixed(2)} mA`, cX, H - 45);
+    
     ctx.fillStyle = '#f59e0b';
     ctx.font = '12px Inter';
     ctx.fillText(`τ = ${(tau * 1000).toFixed(1)} ms`, cX, H - 25);
 
-    // Mode badge
-    ctx.fillStyle = mode === 'charge' ? '#10b981' : '#ef4444';
+    // Animated mode badge with different colors
+    const badgeColor = isCharging ? '#10b981' : '#ef4444';
+    if (currentFlow) {
+      ctx.shadowColor = badgeColor;
+      ctx.shadowBlur = 15 * pulseIntensity;
+    }
+    ctx.fillStyle = badgeColor;
     ctx.beginPath();
-    ctx.roundRect(cX - 45, cY - 15, 90, 28, 14);
+    ctx.roundRect(cX - 50, cY - 15, 100, 28, 14);
     ctx.fill();
+    ctx.shadowBlur = 0;
+    
     ctx.fillStyle = 'white';
     ctx.font = 'bold 13px Inter';
-    ctx.fillText(mode === 'charge' ? '⚡ Charging' : '🔋 Discharging', cX, cY + 4);
-  }, [voltage, resistance, capacitance, vCap, current, tau, mode]);
+    ctx.fillText(isCharging ? '⚡ CHARGING' : '🔋 DISCHARGING', cX, cY + 4);
+    
+    // Mode indicator in corner
+    ctx.fillStyle = badgeColor;
+    ctx.font = 'bold 14px Inter';
+    ctx.textAlign = 'left';
+    ctx.fillText(isCharging ? '🔌 Connected to Source' : '⚡ Self-Discharge Mode', 20, 30);
+  }, [voltage, resistance, capacitance, vCap, current, tau, mode, animationFrame]);
 
-  useEffect(() => { drawCircuit(); }, [drawCircuit]);
+  // Animation loop
+  useEffect(() => {
+    if (activeTab === 'simulation') {
+      const animate = () => {
+        setAnimationFrame(prev => prev + 1);
+        animationRef.current = requestAnimationFrame(animate);
+      };
+      animationRef.current = requestAnimationFrame(animate);
+      
+      return () => {
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+        }
+      };
+    }
+  }, [activeTab]);
+
+  useEffect(() => { 
+    if (activeTab === 'simulation') {
+      // Small delay to ensure canvas is rendered in DOM
+      const timer = setTimeout(() => {
+        drawCircuit();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab, voltage, resistance, capacitance, vCap, current, tau, mode, animationFrame]);
+
+  // Handle canvas visibility and resizing
+  useEffect(() => {
+    if (activeTab === 'simulation' && canvasRef.current) {
+      const canvas = canvasRef.current;
+      const resizeObserver = new ResizeObserver(() => {
+        setTimeout(() => {
+          drawCircuit();
+        }, 50);
+      });
+      
+      resizeObserver.observe(canvas.parentElement || canvas);
+      
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }
+  }, [activeTab, voltage, resistance, capacitance, vCap, current, tau, mode, animationFrame]);
 
   const handleSave = async () => {
     setSaving(true);
