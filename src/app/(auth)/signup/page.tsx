@@ -9,6 +9,8 @@ export default function SignupPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [step, setStep] = useState<'details' | 'otp'>('details');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -41,6 +43,34 @@ export default function SignupPage() {
       return;
     }
 
+    setStep('otp');
+    setLoading(false);
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    const { error: otpError } = await supabase.auth.verifyOtp({
+      email,
+      token: otp,
+      type: 'signup',
+    });
+
+    if (otpError) {
+      setError(otpError.message);
+      setLoading(false);
+      return;
+    }
+
+    // Trigger welcome email (fire and forget)
+    fetch('/api/auth/welcome', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, fullName }),
+    }).catch(console.error);
+
     router.push('/dashboard');
     router.refresh();
   };
@@ -68,11 +98,13 @@ export default function SignupPage() {
             fontWeight: 700,
             color: 'var(--color-text-primary)',
           }}>
-            Create Account
+            {step === 'details' ? 'Create Account' : 'Verify Email'}
           </h1>
         </Link>
         <p style={{ color: 'var(--color-text-secondary)', fontSize: '15px', marginTop: '8px' }}>
-          Start your scientific journey today
+          {step === 'details' 
+            ? 'Start your scientific journey today' 
+            : `We've sent a 6-digit code to ${email}`}
         </p>
       </div>
 
@@ -90,59 +122,96 @@ export default function SignupPage() {
         </div>
       )}
 
-      <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-        <div>
-          <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
-            Full Name
-          </label>
-          <input
-            type="text"
-            className="input-field"
-            placeholder="John Doe"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            required
-          />
-        </div>
+      {step === 'details' ? (
+        <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
+              Full Name
+            </label>
+            <input
+              type="text"
+              className="input-field"
+              placeholder="John Doe"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+            />
+          </div>
 
-        <div>
-          <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
-            Email Address
-          </label>
-          <input
-            type="email"
-            className="input-field"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
+              Email Address
+            </label>
+            <input
+              type="email"
+              className="input-field"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
 
-        <div>
-          <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
-            Password
-          </label>
-          <input
-            type="password"
-            className="input-field"
-            placeholder="Minimum 6 characters"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-          />
-        </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
+              Password
+            </label>
+            <input
+              type="password"
+              className="input-field"
+              placeholder="Minimum 6 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+          </div>
 
-        <button
-          type="submit"
-          className="btn-primary"
-          disabled={loading}
-          style={{ width: '100%', padding: '14px', marginTop: '8px', opacity: loading ? 0.7 : 1 }}
-        >
-          {loading ? 'Creating Account...' : 'Create Account'}
-        </button>
-      </form>
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={loading}
+            style={{ width: '100%', padding: '14px', marginTop: '8px', opacity: loading ? 0.7 : 1 }}
+          >
+            {loading ? 'Creating Account...' : 'Create Account'}
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={handleVerifyOtp} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
+              Enter Code
+            </label>
+            <input
+              type="text"
+              className="input-field"
+              placeholder="123456"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              required
+              style={{ textAlign: 'center', fontSize: '24px', letterSpacing: '8px', fontWeight: 700 }}
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={loading}
+            style={{ width: '100%', padding: '14px', marginTop: '8px', opacity: loading ? 0.7 : 1 }}
+          >
+            {loading ? 'Verifying...' : 'Verify & Sign In'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStep('details')}
+            className="btn-secondary"
+            style={{ width: '100%', padding: '12px' }}
+          >
+            ← Back to Signup
+          </button>
+        </form>
+      )}
 
       <p style={{ textAlign: 'center', fontSize: '14px', color: 'var(--color-text-secondary)', marginTop: '28px' }}>
         Already have an account?{' '}
@@ -153,3 +222,4 @@ export default function SignupPage() {
     </div>
   );
 }
+
