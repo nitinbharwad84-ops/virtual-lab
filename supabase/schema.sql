@@ -12,14 +12,17 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
 CREATE POLICY "Users can view own profile"
   ON public.profiles FOR SELECT
   USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile"
   ON public.profiles FOR UPDATE
   USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
 CREATE POLICY "Users can insert own profile"
   ON public.profiles FOR INSERT
   WITH CHECK (auth.uid() = id);
@@ -37,6 +40,7 @@ CREATE TABLE IF NOT EXISTS public.experiments (
 
 ALTER TABLE public.experiments ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can read experiments" ON public.experiments;
 CREATE POLICY "Anyone can read experiments"
   ON public.experiments FOR SELECT
   TO authenticated, anon
@@ -54,17 +58,21 @@ CREATE TABLE IF NOT EXISTS public.experiment_results (
 
 ALTER TABLE public.experiment_results ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own results" ON public.experiment_results;
 CREATE POLICY "Users can view own results"
   ON public.experiment_results FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own results" ON public.experiment_results;
 CREATE POLICY "Users can insert own results"
   ON public.experiment_results FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own results" ON public.experiment_results;
 CREATE POLICY "Users can delete own results"
   ON public.experiment_results FOR DELETE
   USING (auth.uid() = user_id);
+
 
 -- 4. Trigger: Auto-create profile on signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
