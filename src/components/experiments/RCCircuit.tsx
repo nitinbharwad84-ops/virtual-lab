@@ -16,7 +16,8 @@ export default function RCCircuit() {
   const [activeTab, setActiveTab] = useState<'simulation' | 'graph' | 'calculator'>('simulation');
   const [animationFrame, setAnimationFrame] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number>(null);
+
   const supabase = createClient();
 
   const capF = capacitance * 1e-6;
@@ -447,12 +448,37 @@ export default function RCCircuit() {
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setSaving(false); alert('Please sign in'); return; }
-    await supabase.from('experiment_results').insert({
-      user_id: user.id, experiment_name: 'RC Circuit',
-      result_data: { resistance, capacitance, voltage, time, mode, vCap: vCap.toFixed(3), tau: (tau * 1000).toFixed(1) },
+
+    // Fetch the experiment ID for 'rc-circuit'
+    const { data: expData } = await supabase
+      .from('experiments')
+      .select('id')
+      .eq('slug', 'rc-circuit')
+      .single();
+
+    if (!expData) {
+      setSaving(false);
+      alert('Experiment not found in database');
+      return;
+    }
+
+    const { error } = await supabase.from('experiment_results').insert({
+      user_id: user.id,
+      experiment_id: expData.id,
+      input_params: { resistance, capacitance, voltage, time, mode },
+      output_data: { vCap: vCap.toFixed(3), tau: (tau * 1000).toFixed(1) },
     });
-    setSaved(true); setSaving(false); setTimeout(() => setSaved(false), 3000);
+
+    if (error) {
+      console.error('Save error:', error);
+      alert('Failed to save result');
+    } else {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    }
+    setSaving(false);
   };
+
 
   const tabs = [
     { key: 'simulation', label: '⚡ Simulation' },

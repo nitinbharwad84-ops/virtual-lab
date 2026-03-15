@@ -86,9 +86,11 @@ CREATE TRIGGER on_auth_user_created
 
 -- 5. Seed experiments
 INSERT INTO public.experiments (slug, title, description, category, icon) VALUES
-  ('ohms-law', 'Ohm''s Law', 'Explore the relationship between voltage, current, and resistance in an electrical circuit. Adjust voltage and resistance to observe how current changes.', 'Physics', '⚡'),
+  ('rc-circuit', 'RC Circuit', 'Explore the charging and discharging of a capacitor through a resistor. Understand the concept of the time constant τ = RC.', 'Physics', '🔌'),
+
   ('projectile-motion', 'Projectile Motion', 'Launch a projectile at different angles and velocities to study parabolic trajectories. Observe how gravity affects the range and maximum height.', 'Physics', '🎯'),
   ('acid-base-titration', 'Acid-Base Titration', 'Perform a virtual titration by adding base to an acid solution. Watch how pH changes and identify the equivalence point on a real-time graph.', 'Chemistry', '🧪'),
   ('pendulum', 'Simple Pendulum', 'Investigate the factors affecting a pendulum''s time period. Adjust length and observe the oscillation in a realistic animation.', 'Physics', '🕐'),
   ('lens-optics', 'Convex Lens Optics', 'Study image formation by a convex lens. Move the object and observe how the image position, size, and nature change according to the lens formula.', 'Physics', '🔬')
 ON CONFLICT (slug) DO NOTHING;
+

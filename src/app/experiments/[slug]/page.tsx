@@ -2,9 +2,13 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import RCCircuit from '@/components/experiments/RCCircuit';
 
+
+
 const experimentComponents: Record<string, React.ComponentType> = {
   'rc-circuit': RCCircuit,
 };
+
+
 
 const experimentInfo: Record<string, { title: string; icon: string; category: string; description: string }> = {
   'rc-circuit': {
@@ -14,6 +18,8 @@ const experimentInfo: Record<string, { title: string; icon: string; category: st
     description: 'Simulate charging and discharging of a capacitor through a resistor. Explore the time constant τ = RC and exponential voltage/current curves.',
   },
 };
+
+
 
 interface PageProps {
   params: Promise<{ slug: string }>;
